@@ -2,10 +2,12 @@ import csv
 from nltk.corpus import stopwords # import the stop word list
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from stemming.porter2 import stem
 from nltk.stem.snowball import SnowballStemmer
 import string
-import regex
+import numpy as np
+import pickle
 
 # src : https://www.kaggle.com/c/word2vec-nlp-tutorial/details/part-1-for-beginners-bag-of-words
 
@@ -28,25 +30,30 @@ print("Loading dataset.")
 data = []
 ifile  = open('data/ml_dataset_train.csv', "r")
 reader = csv.reader(ifile)
+i = 0
 for row in reader:
+    if i == 0:
+        i = 1
+        continue
     data.append(row)
 ifile.close()
 
 print("Parsing text.")
 
 parsed_texts = []
+predictions = []
 for item in data:
     if (len(item) == 3):
         parsed_texts.append(parse_interview(item[1]))
+        predictions.append(item[2])
     
 print("Getting bag of words.")
 
 # Initialize the "CountVectorizer" object, which is scikit-learn's bag of words tool.  
-vec = CountVectorizer(analyzer = "word") #,   \
-                       #      max_features = 5000) 
+vec = CountVectorizer(analyzer = "word", max_features = 2000) 
                        
-for i in parsed_texts:
-    print("\n" + i)
+#for i in parsed_texts:
+#    print("\n" + i)
 
 # fit_transform() does two functions: First, it fits the model
 # and learns the vocabulary; second, it transforms our training data
@@ -54,14 +61,35 @@ for i in parsed_texts:
 # strings.
 train_data_features = vec.fit_transform(parsed_texts)
 
+print("Saving to file.")
+
+features_arr = train_data_features.toarray()
+
+# add predictions as last column of features array
+features_arr = np.insert(features_arr, features_arr.shape[1], values=predictions, axis=1)
+
+#np.set_printoptions(threshold=np.nan)
+#print(features_arr)
+
+# Append header row to features array
 vocab = vec.get_feature_names()
-print(vocab)
-print(train_data_features)
-print(train_data_features.shape)
+vocab.append("Prediction")
+features_arr = np.vstack([np.array(vocab), features_arr])
+
+#with open('words.dat', 'wb') as outfile:
+#    pickle.dump(features_arr, outfile, pickle.HIGHEST_PROTOCOL)
+#numpy.savetxt("words.csv", full_matrix, delimiter=",")
 
 print("Tf-idf.")
 
-transformer = TfidfTransformer()
-tfidf = transformer.fit_transform(train_data_features)
+#transformer = TfidfTransformer()
+#tfidf = transformer.fit_transform(train_data_features)
+
+vectorizer = TfidfVectorizer(min_df=1)
+tfidf = vectorizer.fit_transform(parsed_texts)
+#idf = vectorizer.idf_
+#output = dict(zip(vectorizer.get_feature_names(), idf))
 print(tfidf)
-print(tfidf.shape)
+
+with open('output.dat', 'wb') as outfile:
+    pickle.dump(tfidf, outfile, pickle.HIGHEST_PROTOCOL)
