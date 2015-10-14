@@ -3,17 +3,24 @@ from nltk.corpus import stopwords # import the stop word list
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from stemming.porter2 import stem
+from nltk.stem.snowball import SnowballStemmer
+import string
+import regex
 
 # src : https://www.kaggle.com/c/word2vec-nlp-tutorial/details/part-1-for-beginners-bag-of-words
 
+stemmer = SnowballStemmer("english")
 def parse_interview(raw_text):
     lower_case = raw_text.lower() # Convert to lower case
     lower_case = lower_case.replace("__eos__", " ")
+    lower_case = lower_case.replace("-", " ")
+    lower_case = lower_case.replace("/", " ")
+    lower_case = "".join(l for l in lower_case if l not in string.punctuation)
     words = lower_case.split() # Split into words
     large_words = [w for w in words if len(w) > 2]
     stops = set(stopwords.words("english"))
     meaningful_words = [w for w in large_words if not w in stops] #remove stopwords
-    stemmed_words = [ stem(w) for w in meaningful_words ]
+    stemmed_words = [ stemmer.stem(w) for w in meaningful_words ]
     return( " ".join( stemmed_words ))
 
 print("Loading dataset.")
