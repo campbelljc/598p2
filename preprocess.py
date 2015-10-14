@@ -1,59 +1,60 @@
 import csv
-from nltk.corpus import stopwords # Import the stop word list
+from nltk.corpus import stopwords # import the stop word list
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
+from stemming.porter2 import stem
 
 # src : https://www.kaggle.com/c/word2vec-nlp-tutorial/details/part-1-for-beginners-bag-of-words
 
 def parse_interview(raw_text):
     lower_case = raw_text.lower() # Convert to lower case
+    lower_case = lower_case.replace("__eos__", " ")
     words = lower_case.split() # Split into words
+    large_words = [w for w in words if len(w) > 2]
     stops = set(stopwords.words("english"))
-    meaningful_words = [w for w in words if not w in stops] #remove stopwords
-    return( " ".join( meaningful_words ))
-
-ifile  = open('ml_dataset_train.csv', "r")
-reader = csv.reader(ifile)
-
-data = []
+    meaningful_words = [w for w in large_words if not w in stops] #remove stopwords
+    stemmed_words = [ stem(w) for w in meaningful_words ]
+    return( " ".join( stemmed_words ))
 
 print("Loading dataset.")
-for row in reader:
-    # Save header row.
-    data.append(row)
 
+data = []
+ifile  = open('data/ml_dataset_train.csv', "r")
+reader = csv.reader(ifile)
+for row in reader:
+    data.append(row)
 ifile.close()
 
-parsed_texts = []
-
 print("Parsing text.")
+
+parsed_texts = []
 for item in data:
     if (len(item) == 3):
         parsed_texts.append(parse_interview(item[1]))
     
 print("Getting bag of words.")
-# Initialize the "CountVectorizer" object, which is scikit-learn's
-# bag of words tool.  
-vectorizer = CountVectorizer(analyzer = "word",   \
-                             tokenizer = None,    \
-                             preprocessor = None, \
-                             stop_words = None,   \
-                             max_features = 5000) 
+
+# Initialize the "CountVectorizer" object, which is scikit-learn's bag of words tool.  
+vec = CountVectorizer(analyzer = "word") #,   \
+                       #      max_features = 5000) 
+                       
+for i in parsed_texts:
+    print("\n" + i)
 
 # fit_transform() does two functions: First, it fits the model
 # and learns the vocabulary; second, it transforms our training data
 # into feature vectors. The input to fit_transform should be a list of 
 # strings.
-train_data_features = vectorizer.fit_transform(parsed_texts).toarray()
+train_data_features = vec.fit_transform(parsed_texts)
 
-#print(train_data_features.shape)
-#vocab = vectorizer.get_feature_names()
-#print(vocab)
-# tf-idf
+vocab = vec.get_feature_names()
+print(vocab)
+print(train_data_features)
+print(train_data_features.shape)
 
 print("Tf-idf.")
 
 transformer = TfidfTransformer()
-
-transformer.fit(train_data_features)
-print(transformer.transform(train_data_features).toarray())
+tfidf = transformer.fit_transform(train_data_features)
+print(tfidf)
+print(tfidf.shape)
