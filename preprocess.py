@@ -24,6 +24,11 @@ def parse_interview(raw_text):
     meaningful_words = [w for w in large_words if not w in stops] #remove stopwords
     stemmed_words = [ stemmer.stem(w) for w in meaningful_words ]
     return( " ".join( stemmed_words ))
+    
+def p_save(obj, filename):
+    with open(filename, 'wb') as outfile:
+        pickle.dump(obj, outfile, pickle.HIGHEST_PROTOCOL)
+    #np.savetxt(filename, full_matrix, delimiter=",") # save as csv (large files)
 
 print("Loading dataset.")
 
@@ -36,6 +41,7 @@ for row in reader:
         i = 1
         continue
     data.append(row)
+
 ifile.close()
 
 print("Parsing text.")
@@ -46,7 +52,7 @@ for item in data:
     if (len(item) == 3):
         parsed_texts.append(parse_interview(item[1]))
         predictions.append(item[2])
-    
+
 print("Getting bag of words.")
 
 # Initialize the "CountVectorizer" object, which is scikit-learn's bag of words tool.  
@@ -71,14 +77,12 @@ features_arr = np.insert(features_arr, features_arr.shape[1], values=predictions
 #np.set_printoptions(threshold=np.nan)
 #print(features_arr)
 
-# Append header row to features array
 vocab = vec.get_feature_names()
 vocab.append("Prediction")
-features_arr = np.vstack([np.array(vocab), features_arr])
 
-#with open('words.dat', 'wb') as outfile:
-#    pickle.dump(features_arr, outfile, pickle.HIGHEST_PROTOCOL)
-#numpy.savetxt("words.csv", full_matrix, delimiter=",")
+p_save(features_arr, 'words.dat')
+p_save(vocab, 'names.dat')
+#features_arr = np.vstack([np.array(vocab), features_arr])
 
 print("Tf-idf.")
 
