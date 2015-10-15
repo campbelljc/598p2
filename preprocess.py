@@ -28,7 +28,7 @@ def parse_interview(raw_text):
 # ref: http://stackoverflow.com/questions/8955448/save-load-scipy-sparse-csr-matrix-in-portable-data-format
 
 def p_save(obj, filename):
-    with open(filename, 'wb') as outfile:
+    with open("processed_data/" + filename, 'wb') as outfile:
         pickle.dump(obj, outfile, 2)
     #np.savetxt(filename, full_matrix, delimiter=",") # save as csv (large files)
 
@@ -54,15 +54,13 @@ for item in data:
     if (len(item) == 3):
         parsed_texts.append(parse_interview(item[1]))
         predictions.append(item[2])
+        
+#print(parsed_texts)
 
 print("Getting bag of words.")
 
-# Initialize the "CountVectorizer" object, which is scikit-learn's bag of words tool.  
 vec = CountVectorizer(analyzer = "word", max_features = 2000) 
                        
-#for i in parsed_texts:
-#    print("\n" + i)
-
 # fit_transform() does two functions: First, it fits the model
 # and learns the vocabulary; second, it transforms our training data
 # into feature vectors. The input to fit_transform should be a list of 
@@ -72,37 +70,34 @@ train_data_features = vec.fit_transform(parsed_texts)
 print("Saving to file.")
 
 features_arr = train_data_features.toarray()
-
 # add predictions as last column of features array
 features_arr = np.insert(features_arr, features_arr.shape[1], values=predictions, axis=1)
+p_save(features_arr, 'words.dat')
 
-#np.set_printoptions(threshold=np.nan)
-#print(features_arr)
 print(features_arr.shape)
 
+# save feature names (header row of features array)
 vocab = vec.get_feature_names()
 vocab.append("Prediction")
-
-p_save(features_arr, 'words.dat')
 p_save(vocab, 'names.dat')
-#features_arr = np.vstack([np.array(vocab), features_arr])
 
 print("Tf-idf.")
+
+vectorizer = TfidfVectorizer(min_df=1)
+tfidf = vectorizer.fit_transform(parsed_texts)
+print(tfidf.shape)
+
+#idf = vectorizer.idf_
+#output = dict(zip(vectorizer.get_feature_names(), idf))
 
 #transformer = TfidfTransformer()
 #tfidf = transformer.fit_transform(train_data_features)
 
-vectorizer = TfidfVectorizer(min_df=1)
-tfidf = vectorizer.fit_transform(parsed_texts)
-#idf = vectorizer.idf_
-#output = dict(zip(vectorizer.get_feature_names(), idf))
-#print(tfidf)
-#print(type(tfidf))
-print(tfidf.shape)
 
-# src : http://www.cs.duke.edu/courses/spring14/compsci290/assignments/lab02.html
+print("Getting high-valued words.")
 
-high_feature_indices = []
+# ref : http://www.cs.duke.edu/courses/spring14/compsci290/assignments/lab02.html
+high_feature_indices = set()
 feature_names = vectorizer.get_feature_names()
 i = 0
 threshold = 0.7
@@ -113,9 +108,9 @@ for item in parsed_texts:
     for col in item_vals.nonzero()[1]:
         if (item_vals[0, col] > 0.7):
        #     print(feature_names[col], ' - ', item_vals[0, col])
-            high_feature_indices.append((col, feature_names[col]))
+            high_feature_indices.add(feature_names[col])
             
 print(high_feature_indices)
 print(len(high_feature_indices))
 
-p_save(tfidf, 'tfidf.dat')
+p_save(high_feature_indices, 'tfidf_words.dat')
