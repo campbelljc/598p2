@@ -102,13 +102,20 @@ print(tfidf.shape)
 
 # src : http://www.cs.duke.edu/courses/spring14/compsci290/assignments/lab02.html
 
+high_feature_indices = []
 feature_names = vectorizer.get_feature_names()
 i = 0
+threshold = 0.7
 for item in parsed_texts:
     item_vals = vectorizer.transform([item])
-    print("*** DOC " + str(i) + " ***")
+ #   print("*** DOC " + str(i) + " ***")
     i += 1
     for col in item_vals.nonzero()[1]:
-        print(feature_names[col], ' - ', item_vals[0, col])
+        if (item_vals[0, col] > 0.7):
+       #     print(feature_names[col], ' - ', item_vals[0, col])
+            high_feature_indices.append((col, feature_names[col]))
+            
+print(high_feature_indices)
+print(len(high_feature_indices))
 
 p_save(tfidf, 'tfidf.dat')
