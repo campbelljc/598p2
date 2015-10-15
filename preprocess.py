@@ -25,9 +25,11 @@ def parse_interview(raw_text):
     stemmed_words = [ stemmer.stem(w) for w in meaningful_words ]
     return( " ".join( stemmed_words ))
     
+# ref: http://stackoverflow.com/questions/8955448/save-load-scipy-sparse-csr-matrix-in-portable-data-format
+
 def p_save(obj, filename):
     with open(filename, 'wb') as outfile:
-        pickle.dump(obj, outfile, pickle.HIGHEST_PROTOCOL)
+        pickle.dump(obj, outfile, 2)
     #np.savetxt(filename, full_matrix, delimiter=",") # save as csv (large files)
 
 print("Loading dataset.")
@@ -76,6 +78,7 @@ features_arr = np.insert(features_arr, features_arr.shape[1], values=predictions
 
 #np.set_printoptions(threshold=np.nan)
 #print(features_arr)
+print(features_arr.shape)
 
 vocab = vec.get_feature_names()
 vocab.append("Prediction")
@@ -93,7 +96,19 @@ vectorizer = TfidfVectorizer(min_df=1)
 tfidf = vectorizer.fit_transform(parsed_texts)
 #idf = vectorizer.idf_
 #output = dict(zip(vectorizer.get_feature_names(), idf))
-print(tfidf)
+#print(tfidf)
+#print(type(tfidf))
+print(tfidf.shape)
 
-with open('output.dat', 'wb') as outfile:
-    pickle.dump(tfidf, outfile, pickle.HIGHEST_PROTOCOL)
+# src : http://www.cs.duke.edu/courses/spring14/compsci290/assignments/lab02.html
+
+feature_names = vectorizer.get_feature_names()
+i = 0
+for item in parsed_texts:
+    item_vals = vectorizer.transform([item])
+    print("*** DOC " + str(i) + " ***")
+    i += 1
+    for col in item_vals.nonzero()[1]:
+        print(feature_names[col], ' - ', item_vals[0, col])
+
+p_save(tfidf, 'tfidf.dat')
