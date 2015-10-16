@@ -32,6 +32,18 @@ def p_save(obj, filename):
     with open("processed_data/" + filename, 'wb') as outfile:
         pickle.dump(obj, outfile, 2)
     #np.savetxt(filename, full_matrix, delimiter=",") # save as csv (large files)
+    
+def save_binary(words, filename, parsed_texts, predictions):
+    vec = CountVectorizer(analyzer = "word", vocabulary = words)                        
+    train_data_features = vec.fit_transform(parsed_texts)
+    print("Saving to binary file.")
+    features_arr = train_data_features.toarray()
+    for row in features_arr:
+        for col in row:
+            if (col > 1):
+                col = 1
+    features_arr = np.insert(features_arr, features_arr.shape[1], values=predictions, axis=1)
+    p_save(features_arr, filename)
 
 print("Loading dataset.")
 
@@ -60,7 +72,7 @@ for item in data:
 
 print("Getting bag of words.")
 
-vec = CountVectorizer(analyzer = "word", max_features = 1600) 
+vec = CountVectorizer(analyzer = "word", max_features = 3000) 
                        
 # fit_transform() does two functions: First, it fits the model
 # and learns the vocabulary; second, it transforms our training data
@@ -98,7 +110,7 @@ print(tfidf.shape)
 print("Getting high-valued words.")
 
 # ref : http://www.cs.duke.edu/courses/spring14/compsci290/assignments/lab02.html
-high_feature_indices = set()
+high_feature_names = set()
 feature_names = vectorizer.get_feature_names()
 i = 0
 threshold = 0.7
@@ -109,9 +121,10 @@ for item in parsed_texts:
     for col in item_vals.nonzero()[1]:
         if (item_vals[0, col] > 0.7):
        #     print(feature_names[col], ' - ', item_vals[0, col])
-            high_feature_indices.add(feature_names[col])
+            high_feature_names.add(feature_names[col])
             
-print(high_feature_indices)
-print(len(high_feature_indices))
+print(high_feature_names)
+print(len(high_feature_names))
 
-p_save(high_feature_indices, 'tfidf_words.dat')
+#p_save(high_feature_indices, 'tfidf_words.dat')
+save_binary(high_feature_names, 'tfidf_words.dat', parsed_texts, predictions)
