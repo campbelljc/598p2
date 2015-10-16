@@ -1,4 +1,5 @@
 import csv
+import pickle
 from nltk.corpus import stopwords # import the stop word list
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
@@ -7,7 +8,6 @@ from stemming.porter2 import stem
 from nltk.stem.snowball import SnowballStemmer
 import string
 import numpy as np
-import pickle
 
 # src : https://www.kaggle.com/c/word2vec-nlp-tutorial/details/part-1-for-beginners-bag-of-words
 
@@ -60,7 +60,7 @@ for item in data:
 
 print("Getting bag of words.")
 
-vec = CountVectorizer(analyzer = "word", max_features = 2000) 
+vec = CountVectorizer(analyzer = "word", max_features = 1600) 
                        
 # fit_transform() does two functions: First, it fits the model
 # and learns the vocabulary; second, it transforms our training data

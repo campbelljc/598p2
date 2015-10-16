@@ -30,4 +30,4 @@ data_train, data_test, target_train, target_test = train_test_split(data, target
 
 gnb = GaussianNB()
 y_pred = gnb.fit(data_train, target_train).predict(data_test)
-print("Number of mislabeled points out of a total %d points : %d", (data_test.shape[0],(target_test != y_pred).sum()))
+print("Number of mislabeled points out of a total %d points : %d" % (data_test.shape[0],(target_test != y_pred).sum()))
