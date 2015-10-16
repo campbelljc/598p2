@@ -14,6 +14,7 @@ import pickle
 stemmer = SnowballStemmer("english")
 def parse_interview(raw_text):
     lower_case = raw_text.lower() # Convert to lower case
+    lower_case = lower_case.decode('utf-8', 'ignore')
     lower_case = lower_case.replace("__eos__", " ")
     lower_case = lower_case.replace("-", " ")
     lower_case = lower_case.replace("/", " ")
