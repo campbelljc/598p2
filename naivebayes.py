@@ -1,6 +1,7 @@
 import pickle
 import numpy as np
 from sklearn.naive_bayes import GaussianNB
+from sklearn.cross_validation import train_test_split
 
 # ref : http://stackoverflow.com/questions/8955448/save-load-scipy-sparse-csr-matrix-in-portable-data-format
 
@@ -16,9 +17,17 @@ word_count_matrix = p_load('words.dat')
 # each column is a word
 # each cell represents the number of times a word occurs in an interview
 
-data = word_count_matrix[:][0:2000]
-target = word_count_matrix[:][-1]
+print (word_count_matrix.shape)
+
+data = word_count_matrix[:,0:2000]
+target = word_count_matrix[:,-1]
+#target.reshape()
+
+print (data.shape)
+print (target.shape)
+
+data_train, data_test, target_train, target_test = train_test_split(data, target, test_size=0.33, random_state=42)
 
 gnb = GaussianNB()
-y_pred = gnb.fit(data, target).predict(data)
-print("Number of mislabeled points out of a total %d points : %d", (iris.data.shape[0],(iris.target != y_pred).sum()))
+y_pred = gnb.fit(data_train, target_train).predict(data_test)
+print("Number of mislabeled points out of a total %d points : %d", (data_test.shape[0],(target_test != y_pred).sum()))
