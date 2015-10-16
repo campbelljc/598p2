@@ -19,7 +19,7 @@ word_count_matrix = p_load('words.dat')
 
 print (word_count_matrix.shape)
 
-data = word_count_matrix[:,0:2000]
+data = word_count_matrix[:,0:word_count_matrix.shape[1]-1]
 target = word_count_matrix[:,-1]
 #target.reshape()
 
