@@ -4,10 +4,12 @@ from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_extraction.text import CountVectorizer
 import itertools
 import math
+import numpy as np
+from pfile import p_save
 
 NUM_CLASSES = 4;
 
-file = open('processed_data/ml_dataset_train.csv', 'rb');
+file = open('data/ml_dataset_train.csv', 'rb');
 fileReader = csv.reader(file);
 
 # First line is a header, so skip it.
@@ -32,6 +34,7 @@ for row in fileReader:
 data = [interview[0] for interview in interviews];
 
 # Count the words in each document
+#cv = CountVectorizer(ngram_range=(2,2));
 cv = CountVectorizer();
 wordCounts = cv.fit_transform(data);
 wordPresence = wordCounts.sign();
@@ -91,16 +94,26 @@ music     = np.argsort(-np.array(mi[2])[0])
 interview = np.argsort(-np.array(mi[3])[0])
 
 # Print out a list of features
-NUM_FEATURES = 10;
-print('Authors: ');
+NUM_FEATURES = 100;
+#print('Authors: ');
+#for i in range(NUM_FEATURES):
+#    print(' ' + cv.get_feature_names()[author[i]]);
+#print('Movie: ');
+#for i in range(NUM_FEATURES):
+#    print(' ' + cv.get_feature_names()[movie[i]]);
+#print('Music: ');
+#for i in range(NUM_FEATURES):
+#    print(' ' + cv.get_feature_names()[music[i]]);
+#print('Interview: ');
+#for i in range(NUM_FEATURES):
+#    print(' ' + cv.get_feature_names()[interview[i]]);
+
+# Sum up the mutual information for all classes
+miSum = mi.sum(0);
+sortedIndices = np.argsort(-np.array(miSum[0])[0]);
+features = [];
 for i in range(NUM_FEATURES):
-    print(' ' + cv.get_feature_names()[author[i]]);
-print('Movie: ');
-for i in range(NUM_FEATURES):
-    print(' ' + cv.get_feature_names()[movie[i]]);
-print('Music: ');
-for i in range(NUM_FEATURES):
-    print(' ' + cv.get_feature_names()[music[i]]);
-print('Interview: ');
-for i in range(NUM_FEATURES):
-    print(' ' + cv.get_feature_names()[interview[i]]);
+    feature = cv.get_feature_names()[sortedIndices[i]];
+    print(' ' + feature);
+    features.append(feature);
+p_save(features, "mi_features.dat");
