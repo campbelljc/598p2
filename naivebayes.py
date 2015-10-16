@@ -12,7 +12,7 @@ def p_load(file):
 # word_names = p_load('names.dat')
 # single row of word names corresponding to below word columns
 
-word_count_matrix = p_load('tfidf.dat')
+word_count_matrix = p_load('tfidf_words.dat')
 # each row is an interview excerpt
 # each column is a word
 # each cell represents the number of times a word occurs in an interview
@@ -30,4 +30,7 @@ data_train, data_test, target_train, target_test = train_test_split(data, target
 
 gnb = GaussianNB()
 y_pred = gnb.fit(data_train, target_train).predict(data_test)
+for i in y_pred:
+    print i
+#print(y_pred)
 print("Number of mislabeled points out of a total %d points : %d" % (data_test.shape[0],(target_test != y_pred).sum()))
