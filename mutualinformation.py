@@ -2,10 +2,54 @@ import csv
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_extraction.text import CountVectorizer
+from nltk.corpus import stopwords # import the stop word list
+from stemming.porter2 import stem
+from nltk.stem.snowball import SnowballStemmer
 import itertools
 import math
 import numpy as np
+import string
 from pfile import p_save
+
+stemmer = SnowballStemmer("english")
+def parse_interview(raw_text):
+    lower_case = raw_text.lower() # Convert to lower case
+    lower_case = lower_case.decode('utf-8', 'ignore')
+    lower_case = lower_case.replace("__eos__", " ")
+    lower_case = lower_case.replace("-", " ")
+    lower_case = lower_case.replace("/", " ")
+    lower_case = "".join(l for l in lower_case if l not in string.punctuation)
+    words = lower_case.split() # Split into words
+    large_words = [w for w in words if len(w) > 2]
+    stops = set(stopwords.words("english"))
+    meaningful_words = [w for w in large_words if not w in stops] #remove stopwords
+    stemmed_words = [ stemmer.stem(w) for w in meaningful_words ]
+    return( " ".join( stemmed_words ))
+    
+# ref: http://stackoverflow.com/questions/8955448/save-load-scipy-sparse-csr-matrix-in-portable-data-format
+
+def save_binary(words, filename, parsed_texts, predictions):
+    print("Saving to binary file.")
+    vec = CountVectorizer(analyzer = "word", vocabulary = words)                        
+    train_data_features = vec.fit_transform(parsed_texts)
+    features_arr = train_data_features.toarray()
+    features_arr = np.sign(features_arr)
+    
+    i = 0
+    for row in features_arr:
+        for col in row:
+            print("%d %d" % (row, col))
+        i += 1
+        if i > 200:
+            break
+            
+    print(features_arr)
+#    for row in features_arr:
+#        for col in row:
+#            if (col > 1):
+#                col = 1
+    features_arr = np.insert(features_arr, features_arr.shape[1], values=predictions, axis=1)
+    p_save(features_arr, filename)
 
 NUM_CLASSES = 4;
 
@@ -94,7 +138,7 @@ music     = np.argsort(-np.array(mi[2])[0])
 interview = np.argsort(-np.array(mi[3])[0])
 
 # Print out a list of features
-NUM_FEATURES = 100;
+NUM_FEATURES = 1000;
 #print('Authors: ');
 #for i in range(NUM_FEATURES):
 #    print(' ' + cv.get_feature_names()[author[i]]);
@@ -114,6 +158,32 @@ sortedIndices = np.argsort(-np.array(miSum[0])[0]);
 features = [];
 for i in range(NUM_FEATURES):
     feature = cv.get_feature_names()[sortedIndices[i]];
-    print(' ' + feature);
+  #  print(' ' + feature);
     features.append(feature);
-p_save(features, "mi_features.dat");
+
+#p_save(features, "mi_features.dat");
+
+print("Loading dataset.")
+
+data = []
+ifile  = open('data/ml_dataset_train.csv', "r")
+reader = csv.reader(ifile)
+i = 0
+for row in reader:
+    if i == 0:
+        i = 1
+        continue
+    data.append(row)
+
+ifile.close()
+
+print("Parsing text.")
+
+parsed_texts = []
+predictions = []
+for item in data:
+    if (len(item) == 3):
+        parsed_texts.append(parse_interview(item[1]))
+        predictions.append(item[2])
+        
+save_binary(features, 'mi.dat', parsed_texts, predictions)
