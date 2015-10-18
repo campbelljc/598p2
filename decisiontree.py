@@ -30,17 +30,27 @@ data_train, data_test, target_train, target_test = train_test_split(data, target
 
 # dt functions
 
-def entropy(class_list):
-    # get number of each class
+def entropy(dataset):
     total_samples = len(class_list)
     class_count = dict()
-    for x in class_list:  # x is class name
-        class_count[x] += 1
-    probs = [x/total_samples for c in class_count] # divide counts by len
+    for x in dataset:
+        label = x[-1]
+        class_count[label] += 1 # get total count of each class
+    probs = [c/total_samples for c in class_count] # divide counts by len
     entropy = 0.0
     for p in probs:
         entropy += -(p * log2(p))
     return entropy
 
-#def information_gain(data, classes, feature):
-#    
+def split_dataset(data, feature, value):
+    
+
+def information_gain(data, classes, feature):
+    total_samples = len(data)
+    cond_entropy = 0.0
+    for x in data:
+        split_data = split_dataset(data, feature, x)
+        p = len(split_data) / total_samples
+        cond_entropy += p * entropy(split_data)
+    info_gain = entropy(dataset) - cond_entropy
+    return info_gain
