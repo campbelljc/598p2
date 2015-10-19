@@ -69,18 +69,40 @@ def information_gain(data, feature_split_index):
     return info_gain
 
 # ref : http://www.jdxyw.com/?p=2095
-def get_best_feature(data): # choose best feature to split on data
-    total_features = len(data[0]) - 1
+def get_best_feature(data, feature_indices): # choose best feature to split on data
     best_info_gain = 0.0
     best_feature = -1
     
-    for i in range(total_features): # iterate over features
+    for i in feature_indices: # iterate over features
         info_gain = information_gain(data, i)
         if info_gain > best_info_gain:
             best_info_gain = info_gain
-            best_feature = i
+            best_feature_index = i
     
-    return best_feature
+    return best_feature_index # return index of best feature to split on data
 
-def build_decision_tree(data):
-    
+# ref: https://gist.github.com/cmdelatorre/fd9ee43167f5cc1da130
+def build_decision_tree(data, feature_indices):
+    classes = [x[-1] for x in data]
+    if len(feature_indices) == 0: # no features left...
+        # find most common class in the data and return a leaf with value of that class
+        # ref : https://docs.python.org/2/library/collections.html#collections.Counter
+        counter = Counter(classes)
+        k, = counter.most_common(n=1) # get the most common class. returns array of tuples (val, count).
+        commonest_class = k[0]
+        return # todo: create and return tree leaf with val = commonest_class.
+    else: # some features left to look at
+        if len(set(classes)) == 1: # but all the data has the same class, so it doesn't matter.
+            data_class = data[0][-1] # get the class
+            return # todo: create and return tree leaf with val = data_class
+        else: # data has more than 1 class
+            best_feature = get_best_feature(data, feature_indices)
+            # todo: create a new node here with val best_feature
+            feature_indices.pop(best_feature) # remove the chosen feature from the array of features to look at
+            best_feature_vals = { x[best_feature] for x in data } # create unique set of vals of best feature
+            for val in best_feature_vals: # for each possible value of the best feature
+                matching_data_items = [ x for x in data if x[best_feature] == val ] # get all data items with that value
+                child_node = build_decision_tree(matching_data_items, feature_indices)
+                # todo: set the child node to be a child of the node created above
+                #       and return that node.
+            
