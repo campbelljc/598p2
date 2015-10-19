@@ -2,6 +2,7 @@ import pickle
 import numpy as np
 from sklearn.cross_validation import train_test_split
 from math import log2
+from collections import defaultdict
 
 # ref : http://stackoverflow.com/questions/8955448/save-load-scipy-sparse-csr-matrix-in-portable-data-format
 
@@ -30,27 +31,39 @@ data_train, data_test, target_train, target_test = train_test_split(data, target
 
 # dt functions
 
-def entropy(dataset):
-    total_samples = len(class_list)
-    class_count = dict()
-    for x in dataset:
+# ref : http://kldavenport.com/pure-python-decision-trees/
+def entropy(data):
+    total_samples = len(data)
+    class_count = defaultdict(int) # ref : http://ludovf.net/blog/python-collections-defaultdict/
+    
+    for x in data:
         label = x[-1]
         class_count[label] += 1 # get total count of each class
+    
     probs = [c/total_samples for c in class_count] # divide counts by len
+    
     entropy = 0.0
     for p in probs:
-        entropy += -(p * log2(p))
+        entropy += -(p * log2(p)) # formula for entropy: -P(i)*log2(Pi)
+    
     return entropy
 
-def split_dataset(data, feature, value):
+# ref : https://gist.github.com/cmdelatorre/fd9ee43167f5cc1da130
+def information_gain(data, feature_split_index):
+    total_samples = len(data)    
+    data_split_on_feature = defaultdict(list)
     
-
-def information_gain(data, classes, feature):
-    total_samples = len(data)
-    cond_entropy = 0.0
     for x in data:
-        split_data = split_dataset(data, feature, x)
-        p = len(split_data) / total_samples
-        cond_entropy += p * entropy(split_data)
-    info_gain = entropy(dataset) - cond_entropy
+        # Append the data item to the list corresponding to the feature to split
+        # So each list will contain data items with the same value for that feature
+        data_split_on_feature[x[feature_split_index]].append(x)
+        
+    cond_entropy = 0.0
+    for partition in data_split_on_feature.values():
+        targets = [x[-1] for x in partition] # get classes for each item in this partition
+        prob = len(partition) / total_samples
+        # formula for cond. entropy: P(x = feature)*E(classes | x = feature)
+        cond_entropy += prob * entropy(targets)
+        
+    info_gain = entropy(data) - cond_entropy
     return info_gain
