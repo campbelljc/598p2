@@ -67,3 +67,20 @@ def information_gain(data, feature_split_index):
         
     info_gain = entropy(data) - cond_entropy
     return info_gain
+
+# ref : http://www.jdxyw.com/?p=2095
+def get_best_feature(data): # choose best feature to split on data
+    total_features = len(data[0]) - 1
+    best_info_gain = 0.0
+    best_feature = -1
+    
+    for i in range(total_features): # iterate over features
+        info_gain = information_gain(data, i)
+        if info_gain > best_info_gain:
+            best_info_gain = info_gain
+            best_feature = i
+    
+    return best_feature
+
+def build_decision_tree(data):
+    
