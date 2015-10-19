@@ -82,6 +82,7 @@ def get_best_feature(data, feature_indices): # choose best feature to split on d
     return best_feature_index # return index of best feature to split on data
 
 # ref: https://gist.github.com/cmdelatorre/fd9ee43167f5cc1da130
+# feature_indices base val: list(range(len(data[0]))) I.e.: {0, ..., n} where n = num. features
 def build_decision_tree(data, feature_indices):
     classes = [x[-1] for x in data]
     if len(feature_indices) == 0: # no features left...
@@ -105,4 +106,14 @@ def build_decision_tree(data, feature_indices):
                 child_node = build_decision_tree(matching_data_items, feature_indices)
                 # todo: set the child node to be a child of the node created above
                 #       and return that node.
-            
+
+# ref : https://gist.github.com/cmdelatorre/fd9ee43167f5cc1da130
+def predict(data):
+    default_class = 0
+    predicted_classes = []
+    
+    for x in data:
+        predicted_class = None
+        # todo: iterate over the tree...
+    
+    return predicted_classes
