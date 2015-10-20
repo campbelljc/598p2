@@ -1,3 +1,4 @@
+from __future__ import division
 import pickle
 import numpy as np
 from sklearn.naive_bayes import GaussianNB
@@ -9,24 +10,15 @@ def p_load(file):
     with open("processed_data/" + file, 'rb') as infile:
         return pickle.load(infile)
         
-# word_names = p_load('names.dat')
-# single row of word names corresponding to below word columns
+dataset = p_load('tfidf.dat')
+data = dataset[:,0:dataset.shape[1]-1]
+target = dataset[:,-1]
 
-word_count_matrix = p_load('mi.dat')
-# each row is an interview excerpt
-# each column is a word
-# each cell represents the number of times a word occurs in an interview
-
-print (word_count_matrix.shape)
-
-data = word_count_matrix[:,0:word_count_matrix.shape[1]-1]
-target = word_count_matrix[:,-1]
-#target.reshape()
-
+print (dataset.shape)
 print (data.shape)
 print (target.shape)
 
-data_train, data_test, target_train, target_test = train_test_split(data, target, test_size=0.33, random_state=42)
+data_train, data_test, target_train, target_test = train_test_split(data, target, test_size=0.20, random_state=42)
 
 gnb = GaussianNB()
 y_pred = gnb.fit(data_train, target_train).predict(data_train)
@@ -34,9 +26,13 @@ y_pred = gnb.fit(data_train, target_train).predict(data_train)
 #    print i
 #print(y_pred)
 print("Number of mislabeled points out of a total %d points : %d (training)" % (data_train.shape[0],(target_train != y_pred).sum()))
+train_p = ((target_train != y_pred).sum())/(data_train.shape[0])*100
+print("Training error: %d" % train_p)
 
 y_pred = gnb.fit(data_train, target_train).predict(data_test)
 #for i in y_pred:
 #    print i
 #print(y_pred)
 print("Number of mislabeled points out of a total %d points : %d (test)" % (data_test.shape[0],(target_test != y_pred).sum()))
+test_p = ((target_test != y_pred).sum())/(data_test.shape[0])*100
+print("Test error: %d" % test_p)

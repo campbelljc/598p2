@@ -20,10 +20,9 @@ def parse_interview(raw_text):
     lower_case = lower_case.replace("/", " ")
     lower_case = "".join(l for l in lower_case if l not in string.punctuation)
     words = lower_case.split() # Split into words
- #   large_words = [w for w in words if len(w) > 2]
- #   stops = set(stopwords.words("english"))
- #   meaningful_words = [w for w in large_words if not w in stops] #remove stopwords
- #   stemmed_words = [ stemmer.stem(w) for w in meaningful_words ]
+    stops = set(stopwords.words("english"))
+    words = [w for w in words if not w in stops] #remove stopwords
+    words = [ stemmer.stem(w) for w in words ]
     return( " ".join( words ))
     
 # ref: http://stackoverflow.com/questions/8955448/save-load-scipy-sparse-csr-matrix-in-portable-data-format
@@ -37,17 +36,11 @@ def save_binary(words, filename, parsed_texts, predictions):
     
     i = 0
     for row in features_arr:
-        for col in row:
-            print((row, col))
         i += 1
         if i > 200:
             break
             
     print(features_arr)
-#    for row in features_arr:
-#        for col in row:
-#            if (col > 1):
-#                col = 1
     features_arr = np.insert(features_arr, features_arr.shape[1], values=predictions, axis=1)
     p_save(features_arr, filename)
 
