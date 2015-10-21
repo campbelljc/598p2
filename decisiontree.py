@@ -91,10 +91,10 @@ def get_best_feature(data, feature_indices): # choose best feature to split on d
 #  First element is the feature on which the decision is being made
 #  Second element is a dictionary containing the subtrees, indexed on the possible values of the feature
 #  If the subtree is a leaf, its value will instead be an integer representing the class to predict
-def build_decision_tree(data, feature_indices):
+def build_decision_tree(data, feature_indices, max_depth=5):
     feature_indices = feature_indices[:]; # Make a copy of the list so we don't modify the original
     classes = [x[-1] for x in data]
-    if len(feature_indices) == 0: # no features left...
+    if len(feature_indices) == 0 or max_depth <= 0: # no features left...
         # find most common class in the data and return a leaf with value of that class
         # ref : https://docs.python.org/2/library/collections.html#collections.Counter
         counter = Counter(classes)
@@ -112,7 +112,7 @@ def build_decision_tree(data, feature_indices):
             subtrees = {};
             for val in best_feature_vals: # for each possible value of the best feature
                 matching_data_items = [ x for x in data if x[best_feature] == val ] # get all data items with that value
-                child_node = build_decision_tree(matching_data_items, feature_indices)
+                child_node = build_decision_tree(matching_data_items, feature_indices, max_depth=max_depth-1)
                 subtrees[val] = child_node;
             return (best_feature, subtrees);
 
@@ -131,18 +131,31 @@ def predict_one(tree, data):
 
     feature = tree[0];
     subtrees = tree[1];
+    print('predict_one:');
     return predict_one(subtrees[data[feature]], data);
 
 
 if __name__ == '__main__':
 
-    word_count_matrix = p_load('mi.dat')
+    #word_count_matrix = p_load('mi.dat')
+    word_count_matrix = np.sign(p_load('words.dat'))
     num_features = word_count_matrix.shape[1]-1;
     print(str(num_features) + " features.");
 
+    print("Splitting data into training/test sets");
     data_train, data_test = train_test_split(word_count_matrix, test_size=0.33, random_state=42)
 
+    print("Building the decision tree");
     tree = build_decision_tree(data_train, range(num_features));
-    test_x = data_test[:,0:data_matrix.shape[1]-1]
+    test_x = data_test[:,0:num_features-1]
     test_y = data_test[:,-1]
+    print(tree);
+
+    print("Testing the decision tree");
     pred_y = predict(tree, test_x);
+    wrong_count = 0;
+    for i in range(len(pred_y)):
+        if pred_y[i] != test_y[i]:
+            wrong_count += 1;
+    error = float(wrong_count)/len(pred_y);
+    print("Score: " + str(1.0-error));
