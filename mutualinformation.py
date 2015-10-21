@@ -2,77 +2,22 @@ import csv
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_extraction.text import CountVectorizer
-from nltk.corpus import stopwords # import the stop word list
-from stemming.porter2 import stem
-from nltk.stem.snowball import SnowballStemmer
 import itertools
 import math
 import numpy as np
-import string
 from pfile import p_save
-
-stemmer = SnowballStemmer("english")
-def parse_interview(raw_text):
-    lower_case = raw_text.lower() # Convert to lower case
-    lower_case = lower_case.decode('utf-8', 'ignore')
-    lower_case = lower_case.replace("__eos__", " ")
-    lower_case = lower_case.replace("-", " ")
-    lower_case = lower_case.replace("/", " ")
-    lower_case = "".join(l for l in lower_case if l not in string.punctuation)
-    words = lower_case.split() # Split into words
-    stops = set(stopwords.words("english"))
-    words = [w for w in words if not w in stops] #remove stopwords
-    words = [ stemmer.stem(w) for w in words ]
-    return( " ".join( words ))
-    
-# ref: http://stackoverflow.com/questions/8955448/save-load-scipy-sparse-csr-matrix-in-portable-data-format
-
-def save_binary(words, filename, parsed_texts, predictions):
-    print("Saving to binary file.")
-    vec = CountVectorizer(analyzer = "word", vocabulary = words)                        
-    train_data_features = vec.fit_transform(parsed_texts)
-    features_arr = train_data_features.toarray()
-    features_arr = np.sign(features_arr)
-    
-    i = 0
-    for row in features_arr:
-        i += 1
-        if i > 200:
-            break
-            
-    print(features_arr)
-    features_arr = np.insert(features_arr, features_arr.shape[1], values=predictions, axis=1)
-    p_save(features_arr, filename)
+from common import loadTrainingData;
+from nltk.tokenize import TreebankWordTokenizer
 
 NUM_CLASSES = 4;
 
-file = open('data/ml_dataset_train.csv', 'rb');
-fileReader = csv.reader(file);
-
-# First line is a header, so skip it.
-fileReader.next();
-
-# Loop through all interviews
-interviews = [];
-for row in fileReader:
-	index = row[0];
-	data = row[1];
-	output = row[2];
-
-        # Remove __EOS__
-        interview = data.replace('__EOS__', '');
-
-	# Trim the strings (Saves a bit of space?)
-        interview.strip();
-
-	# Add to the list
-	interviews.append((interview, output));
-
+interviews = loadTrainingData();
 data = [interview[0] for interview in interviews];
 
 # Count the words in each document
-#cv = CountVectorizer(ngram_range=(2,2));
-cv = CountVectorizer();
+#cv = CountVectorizer(ngram_range=(1,2));
+cv = CountVectorizer(tokenizer=TreebankWordTokenizer().tokenize);
+#cv = CountVectorizer();
 wordCounts = cv.fit_transform(data);
 wordPresence = wordCounts.sign();
 
@@ -131,7 +76,7 @@ music     = np.argsort(-np.array(mi[2])[0])
 interview = np.argsort(-np.array(mi[3])[0])
 
 # Print out a list of features
-NUM_FEATURES = 1000;
+NUM_FEATURES = 200;
 #print('Authors: ');
 #for i in range(NUM_FEATURES):
 #    print(' ' + cv.get_feature_names()[author[i]]);
@@ -151,7 +96,7 @@ sortedIndices = np.argsort(-np.array(miSum[0])[0]);
 features = [];
 for i in range(NUM_FEATURES):
     feature = cv.get_feature_names()[sortedIndices[i]];
-  #  print(' ' + feature);
+    print(' ' + feature);
     features.append(feature);
 
 p_save(features, "mi_features.dat");
