@@ -73,7 +73,6 @@ data = [interview[0] for interview in interviews];
 data_train, data_validation = train_test_split(data, test_size=0.25, random_state=42)
 
 # Count the words in each document
-#cv = CountVectorizer(ngram_range=(2,2));
 cv = CountVectorizer();
 wordCounts = cv.fit_transform(data);
 wordPresence = wordCounts.sign();
