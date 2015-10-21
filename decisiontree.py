@@ -18,10 +18,10 @@ data_matrix = p_load('mi.dat')
 # each column is a word
 # each cell represents the number of times a word occurs in an interview
 
-print (word_count_matrix.shape)
+print (data_matrix.shape)
 
-data = word_count_matrix[:,0:word_count_matrix.shape[1]-1]
-target = word_count_matrix[:,-1]
+data = data_matrix[:,0:data_matrix.shape[1]-1]
+target = data_matrix[:,-1]
 #target.reshape()
 
 print (data.shape)

@@ -10,9 +10,12 @@ def p_load(file):
     with open("processed_data/" + file, 'rb') as infile:
         return pickle.load(infile)
         
-dataset = p_load('tfidf.dat')
+dataset = p_load('mi.dat')
 data = dataset[:,0:dataset.shape[1]-1]
 target = dataset[:,-1]
+
+data_train_full = data
+target_train_full = data
 
 print (dataset.shape)
 print (data.shape)

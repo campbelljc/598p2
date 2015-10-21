@@ -154,7 +154,7 @@ for i in range(NUM_FEATURES):
   #  print(' ' + feature);
     features.append(feature);
 
-#p_save(features, "mi_features.dat");
+p_save(features, "mi_features.dat");
 
 print("Loading dataset.")
 
