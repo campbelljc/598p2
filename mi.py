@@ -12,18 +12,18 @@ import numpy as np
 import string
 from pfile import p_save
 
-stemmer = SnowballStemmer("english")
+#stemmer = SnowballStemmer("english")
 def parse_interview(raw_text):
     lower_case = raw_text.lower() # Convert to lower case
     lower_case = lower_case.decode('utf-8', 'ignore')
     lower_case = lower_case.replace("__eos__", " ")
     lower_case = lower_case.replace("-", " ")
     lower_case = lower_case.replace("/", " ")
-    lower_case = "".join(l for l in lower_case if l not in string.punctuation)
+#    lower_case = "".join(l for l in lower_case if l not in string.punctuation)
     words = lower_case.split() # Split into words
-    stops = set(stopwords.words("english"))
-    words = [w for w in words if not w in stops] #remove stopwords
-    words = [ stemmer.stem(w) for w in words ]
+#    stops = set(stopwords.words("english"))
+#    words = [w for w in words if not w in stops] #remove stopwords
+#    words = [ stemmer.stem(w) for w in words ]
     return( " ".join( words ))
 
 def save_binary(words, filename, parsed_texts): #, predictions):
