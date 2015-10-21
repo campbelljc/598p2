@@ -15,9 +15,7 @@ interviews = loadTrainingData();
 data = [interview[0] for interview in interviews];
 
 # Count the words in each document
-#cv = CountVectorizer(ngram_range=(1,2));
-cv = CountVectorizer(tokenizer=TreebankWordTokenizer().tokenize);
-#cv = CountVectorizer();
+cv = CountVectorizer();
 wordCounts = cv.fit_transform(data);
 wordPresence = wordCounts.sign();
 
@@ -121,7 +119,8 @@ parsed_texts = []
 predictions = []
 for item in data:
     if (len(item) == 3):
-        parsed_texts.append(parse_interview(item[1]))
+        #parsed_texts.append(parse_interview(item[1]))
+        parsed_texts.append(item[1])
         predictions.append(item[2])
         
 save_binary(features, 'mi.dat', parsed_texts, predictions)
