@@ -20,7 +20,7 @@ data_test_full = p_load('mi_test.dat')
 
 # ref : http://scikit-learn.org/stable/tutorial/text_analytics/working_with_text_data.html
 
-clf = SGDClassifier(loss='hinge', penalty='l2', alpha=0.005, n_iter=10, random_state=42, n_jobs=-1)
+clf = SGDClassifier(loss='hinge', penalty='l2', alpha=0.005, n_iter=10, random_state=42, n_jobs=-1, average=True)
 
 predicted_train = clf.fit(data_train_full, target_train_full).predict(data_train_full)
 #print("Number of mislabeled points out of a total %d points : %d (training)" % (data_train_full.shape[0],(target_train_full != predicted_train).sum()))
@@ -28,6 +28,11 @@ train_p = ((target_train_full != predicted_train).sum())/(data_train_full.shape[
 print("Training error on full set: %d" % train_p)
 
 predicted_test = clf.fit(data_train_full, target_train_full).predict(data_test_full)
+
+with open('data/svm_mi_coef.csv','w') as out:
+    csv_out=csv.writer(out)
+    for row in clf.coef_:
+        csv_out.writerow(row)
 
 print("Saving to csv")
 
