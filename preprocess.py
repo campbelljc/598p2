@@ -67,8 +67,6 @@ for item in data:
         parsed_texts.append(parse_interview(item[1]))
         predictions.append(item[2])
         
-#print(parsed_texts)
-
 print("Getting bag of words.")
 
 vec = CountVectorizer(analyzer = "word", max_features = 3000) 
@@ -86,8 +84,6 @@ features_arr = train_data_features.toarray()
 features_arr = np.insert(features_arr, features_arr.shape[1], values=predictions, axis=1)
 p_save(features_arr, 'words.dat')
 
-#print(features_arr.shape)
-
 # save feature names (header row of features array)
 vocab = vec.get_feature_names()
 vocab.append("Prediction")
@@ -97,14 +93,6 @@ print("Tf-idf.")
 
 vectorizer = TfidfVectorizer(min_df=1)
 tfidf = vectorizer.fit_transform(parsed_texts)
-#print(tfidf.shape)
-
-#idf = vectorizer.idf_
-#output = dict(zip(vectorizer.get_feature_names(), idf))
-
-#transformer = TfidfTransformer()
-#tfidf = transformer.fit_transform(train_data_features)
-
 
 print("Getting high-valued words.")
 
@@ -115,15 +103,11 @@ i = 0
 threshold = 0.6
 for item in parsed_texts:
     item_vals = vectorizer.transform([item])
- #   print("*** DOC " + str(i) + " ***")
     i += 1
     for col in item_vals.nonzero()[1]:
         if (item_vals[0, col] > threshold):
-       #     print(feature_names[col], ' - ', item_vals[0, col])
             high_feature_names.add(feature_names[col])
             
-#print(high_feature_names)
 print(len(high_feature_names))
 
-#p_save(high_feature_indices, 'tfidf_words.dat')
 save_binary(high_feature_names, 'tfidf.dat', parsed_texts, predictions)

@@ -10,31 +10,6 @@ from collections import Counter
 def p_load(file):
     with open("processed_data/" + file, 'rb') as infile:
         return pickle.load(infile)
-        
-# word_names = p_load('names.dat')
-# single row of word names corresponding to below word columns
-
-#word_count_matrix = p_load('mi.dat')
-# each row is an interview excerpt
-# each column is a word
-# each cell represents the number of times a word occurs in an interview
-
-#print (word_count_matrix.shape)
-
-#data = data_matrix[:,0:data_matrix.shape[1]-1]
-#target = data_matrix[:,-1]
-#target.reshape()
-
-#print (data.shape)
-#print (target.shape)
-
-#data_train, data_test, target_train, target_test = train_test_split(data, target, test_size=0.33, random_state=42)
-#data_train, data_test = train_test_split(word_count_matrix, test_size=0.33, random_state=42)
-#
-#tree = build_decision_tree(data_train);
-#test_x = data_test[:,0:data_matrix.shape[1]-1]
-#test_y = data_test[:,-1]
-#pred_y = predict(tree, test_x);
 
 # dt functions
 

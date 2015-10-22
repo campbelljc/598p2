@@ -10,12 +10,6 @@ def p_load(file):
 
 word_count_matrix = p_load('__.dat')  # Put in the file name here .dat
 
-# each row is an interview excerpt
-# each column is a word
-# each cell represents the number of times a word occurs in an interview
-
-#print (word_count_matrix.shape)
-
 data = word_count_matrix[:100,0:word_count_matrix.shape[1]-1]
 target = word_count_matrix[:100,-1]
 

@@ -12,6 +12,9 @@ import numpy as np
 import string
 from pfile import p_save
 
+## This file loads in the test dataset for Kaggle,
+## and returns the matrix of mutual information binary word counts.
+
 #stemmer = SnowballStemmer("english")
 def parse_interview(raw_text):
     lower_case = raw_text.lower() # Convert to lower case
@@ -40,7 +43,6 @@ def save_binary(words, filename, parsed_texts): #, predictions):
             break
             
     print(features_arr)
-#    features_arr = np.insert(features_arr, features_arr.shape[1], values=predictions, axis=1)
     p_save(features_arr, filename)
 
 
@@ -70,4 +72,4 @@ parsed_texts = []
 for item in data:
     parsed_texts.append(parse_interview(item[1]))
         
-save_binary(features, 'mi_test.dat', parsed_texts) #, predictions)
+save_binary(features, 'mi_test.dat', parsed_texts)
